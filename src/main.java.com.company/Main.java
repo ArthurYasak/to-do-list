@@ -18,7 +18,7 @@ public class Main {
         writer.flush();
         writer.close();
         FileReader reader = new FileReader("output.txt");
-        System.out.println("Your to-do list");
+        System.out.println("Your to-do list: ");
         int c;
         while((c=reader.read())!=-1){
             System.out.print((char)c);
