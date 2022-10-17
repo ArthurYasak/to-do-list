@@ -14,9 +14,12 @@ public class Main {
 
         Scanner sc = new Scanner(System.in);
         Path path = Paths.get("path.txt");
+        try {
+            Files.createFile(path);
+        } catch (IOException e){}
         String str = sc.nextLine() + "\n";
-        byte[] boolStr = str.getBytes();
-        Files.write(path, boolStr, StandardOpenOption.APPEND);
+        byte[] byteStr = str.getBytes();
+        Files.write(path, byteStr, StandardOpenOption.APPEND);
 
         // (LAST VERSION!) main part of program
         /*
@@ -130,12 +133,12 @@ public class Main {
 
 
         // deleteBusiness(1);
-        deleteBusiness(2);
+        deleteBusiness(3);
 
         deleteEmpty();
 
         // do a method "printBusiness"
-        System.out.println("Your to-do list: ");
+        System.out.println("Your to-do list:");
 
         List<String> linesToOutput = Files.readAllLines(path);
         for (String line : linesToOutput) {
@@ -180,7 +183,9 @@ public class Main {
     public static void deleteBusiness(int index) throws IOException {
         Path path = Paths.get("path.txt");
         Path newPath = Paths.get("newPath.txt");
-        Files.createFile(newPath);
+        try {
+            Files.createFile(newPath);
+        } catch (IOException e) {}
         List<String> linesToRewrite = Files.readAllLines(path);
         for (int i = 0; i < linesToRewrite.size(); i++) {
             if (i != (index - 1)) {
@@ -198,7 +203,9 @@ public class Main {
         if (Files.exists(path)) {
             Files.delete(path);
         }
-        Files.copy(newPath, path);
+        if (Files.exists(newPath)) {
+            Files.copy(newPath, path);
+        }
         if (Files.exists(newPath)) {
             Files.delete(newPath);
         }
@@ -260,7 +267,9 @@ public class Main {
         if (Files.exists(path)) {
             Files.delete(path);
         }
-        Files.copy(newPath, path);
+        if (Files.exists(newPath)) {
+            Files.copy(newPath, path);
+        }
         if (Files.exists(newPath)) {
             Files.delete(newPath);
         }
