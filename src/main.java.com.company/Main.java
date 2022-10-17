@@ -13,6 +13,7 @@ public class Main {
         System.out.println("Type your business:");
 
         Scanner sc = new Scanner(System.in);
+
         Path path = Paths.get("path.txt");
         try {
             Files.createFile(path);
@@ -20,6 +21,16 @@ public class Main {
         String str = sc.nextLine() + "\n";
         byte[] byteStr = str.getBytes();
         Files.write(path, byteStr, StandardOpenOption.APPEND);
+
+        System.out.println("Your to-do list:");
+
+        List<String> linesToOutput = Files.readAllLines(path);
+        for (String line : linesToOutput) {
+            System.out.println(line);
+        }
+
+        System.out.println("Type your business to delete (or press 0):");
+        int delBusinessNum = sc.nextInt();
 
         // (LAST VERSION!) main part of program
         /*
@@ -133,14 +144,13 @@ public class Main {
 
 
         // deleteBusiness(1);
-        deleteBusiness(3);
+        deleteBusiness(delBusinessNum);
 
         deleteEmpty();
 
         // do a method "printBusiness"
-        System.out.println("Your to-do list:");
-
-        List<String> linesToOutput = Files.readAllLines(path);
+        System.out.println("Your updated to-do list:");
+        linesToOutput = Files.readAllLines(path);
         for (String line : linesToOutput) {
             System.out.println(line);
         }
