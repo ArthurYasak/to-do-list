@@ -9,6 +9,8 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Calendar;
+import java.util.Date;
 import java.io.Serializable;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
@@ -49,8 +51,16 @@ public class Main {
             System.out.println("List with this name does not exist");
         }
 
-        ListsControl.printLists();
+        System.out.println("Write ToDoList for print its business.");
+        String listToPrint = sc.nextLine();
+        currentList = ListsControl.searchList(listToPrint);
+        if (currentList != null) {
+            ToDoList.printList(currentList);
+        } else {
+            System.out.println("List with this name does not exist");
+        }
 
+        ListsControl.printLists();
 
     }
 
@@ -68,36 +78,6 @@ public class Main {
 
     // methods for class ToDoList
     /*
-    public static void deleteBusiness(int index) throws IOException {
-        Path path = Paths.get("path.txt");
-        Path newPath = Paths.get("newPath.txt");
-        if (!(Files.exists(newPath))) {
-            Files.createFile(newPath);
-        }
-        List<String> linesToRewrite = Files.readAllLines(path);
-        for (int i = 0; i < linesToRewrite.size(); i++) {
-            if (i != (index - 1)) {
-                byte[] byteLine = (linesToRewrite.get(i) + '\n').getBytes();
-                Files.write(newPath, byteLine, StandardOpenOption.APPEND);
-            } else {
-                String nextDoor = "\n";
-                byte[] byteLine = nextDoor.getBytes();
-                Files.write(newPath, byteLine, StandardOpenOption.APPEND);
-            }
-        }
-        String nextDoor = "\n";
-        byte[] byteLine = nextDoor.getBytes();
-        Files.write(newPath, byteLine, StandardOpenOption.APPEND);
-        if (Files.exists(path)) {
-            Files.delete(path);
-        }
-        if (Files.exists(newPath)) {
-            Files.copy(newPath, path);
-        }
-        if (Files.exists(newPath)) {
-            Files.delete(newPath);
-        }
-    }
 
     public static void deleteEmpty() throws IOException {
         Path path = Paths.get("path.txt");
@@ -124,6 +104,8 @@ public class Main {
     }
 
      */
+
+
 }
 
 class ListsControl {
@@ -145,7 +127,7 @@ class ListsControl {
             objectOutputStream = new AppendingObjectOutputStream(outputStream);
         } else {
             // Stream to write data to file (connection stream)
-            outputStream = new FileOutputStream(toDoListsObj, true);
+            outputStream = new FileOutputStream(toDoListsObj);
 
             // Stream to convert ToDoList object to bytes (chain (цепной) stream)
             objectOutputStream = new ObjectOutputStream(outputStream);
@@ -174,12 +156,13 @@ class ListsControl {
                 flagForCheck = false;
             }
         }
+
         // checking if .txt files with ListsControl is not exist anymore
         if (!flagForCheck) {
-            FileOutputStream rewriteStream = new FileOutputStream(toDoListsObj, false);
-            ObjectOutputStream rewriteObjectStream = new ObjectOutputStream(rewriteStream);
+            FileOutputStream rewriteStream = new FileOutputStream(toDoListsObj, true);
+            ObjectOutputStream rewriteObjectStream = new AppendingObjectOutputStream(rewriteStream);
             for (ToDoList thisToDoList: toDoLists) {
-                rewriteObjectStream.writeObject(thisToDoList);
+                objectOutputStream.writeObject(thisToDoList);
             }
         }
 
@@ -195,8 +178,8 @@ class ListsControl {
         toDoList.setName(listName);
         Path path = Paths.get(toDoList.getName() + ".txt");
         if (!(Files.exists(path))) {
-            System.out.println("Enter the date of list.");
-            toDoList.setDate(sc.nextLine());
+
+
             System.out.println("Enter the description of list.");
             toDoList.setDescription(sc.nextLine());
             Files.createFile(path);
@@ -207,7 +190,8 @@ class ListsControl {
             // System.out.println(inputStream.available());
             System.out.println("List was successfully added.");
 
-            System.out.println("Do you want to add business in ToDoList" + toDoList.getName());
+
+            System.out.println("Do you want to add business in ToDoList " + toDoList.getName());
             System.out.println("Press 1 (Yes) or 0 (No)");
             if (sc.nextLine().equals("1")) {
                 System.out.println("How many businesses you want to add?");
@@ -221,8 +205,8 @@ class ListsControl {
         } else {
             System.out.println("List already exists.");
         }
-
     }
+    
     static void printLists() {
         System.out.print("Available " + toDoLists.size());
         System.out.println((toDoLists.size() == 1)? " list:" : " lists:");
@@ -231,15 +215,6 @@ class ListsControl {
             System.out.println("Date: " + toDoList.getDate());
             System.out.println("Description: " + toDoList.getDescription());
             System.out.println();
-        }
-    }
-
-    // old version for one list, need to rewrite
-    void printList() throws IOException {
-        Path path = Paths.get("path.txt");
-        List<String> linesToOutput = Files.readAllLines(path);
-        for (String line : linesToOutput) {
-            System.out.println(line);
         }
     }
 
@@ -263,7 +238,8 @@ class ListsControl {
 class ToDoList implements Serializable {
     private static final long serialVersionUID = 1L;
     private String name;
-    private String date;
+    private Calendar calendar = Calendar.getInstance();
+    private Date date = calendar.getTime();
     private String description;
     static ArrayList<Business> busList = new ArrayList<>();
     public void setName(String name) {
@@ -272,10 +248,10 @@ class ToDoList implements Serializable {
     public String getName() {
         return this.name;
     }
-    public void setDate(String date) {
+    public void setDate(Date date) {
         this.date = date;
     }
-    public String getDate() {
+    public Date getDate() {
         return this.date;
     }
     public void setDescription(String description) {
@@ -310,9 +286,41 @@ class ToDoList implements Serializable {
         Files.write(path, byteStr, StandardOpenOption.APPEND);
         System.out.println("Business added!");
     }
-
-    void printList() throws IOException {
+    public static void deleteBusiness(int index) throws IOException {
         Path path = Paths.get("path.txt");
+        Path newPath = Paths.get("newPath.txt");
+        if (!(Files.exists(newPath))) {
+            Files.createFile(newPath);
+        }
+        List<String> linesToRewrite = Files.readAllLines(path);
+        for (int i = 0; i < linesToRewrite.size(); i++) {
+            if (i != (index - 1)) {
+                byte[] byteLine = (linesToRewrite.get(i) + '\n').getBytes();
+                Files.write(newPath, byteLine, StandardOpenOption.APPEND);
+            } else {
+                String nextDoor = "\n";
+                byte[] byteLine = nextDoor.getBytes();
+                Files.write(newPath, byteLine, StandardOpenOption.APPEND);
+            }
+        }
+        String nextDoor = "\n";
+        byte[] byteLine = nextDoor.getBytes();
+        Files.write(newPath, byteLine, StandardOpenOption.APPEND);
+        if (Files.exists(path)) {
+            Files.delete(path);
+        }
+        if (Files.exists(newPath)) {
+            Files.copy(newPath, path);
+        }
+        if (Files.exists(newPath)) {
+            Files.delete(newPath);
+        }
+    }
+
+
+    static void printList(ToDoList listToPrint) throws IOException {
+        System.out.printf("Businesses in %s:", listToPrint.getName());
+        Path path = Paths.get(listToPrint.getName()+ ".txt");
         List<String> linesToOutput = Files.readAllLines(path);
         for (String line : linesToOutput) {
             System.out.println(line);
@@ -376,5 +384,3 @@ class AppendingObjectOutputStream extends ObjectOutputStream {
         // reset(); // when active EOFException throws
     }
 }
-
-
